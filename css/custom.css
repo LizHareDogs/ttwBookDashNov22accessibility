@@ -1,0 +1,11 @@
+/*-- Custom class for the title slide --*/
+
+/* turns off slide numbers for title page: */
+/* https://github.com/gnab/remark/issues/298 */
+.title .remark-slide-number {
+  display:           none;
+}
+
+.no-slide-number .remark-slide-number {
+  display: none;
+}
