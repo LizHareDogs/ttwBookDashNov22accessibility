@@ -1,0 +1,370 @@
+---
+title: "Accessibility in Data Science" 
+subtitle: "The Turing Way BookDash Nov. 2022"
+authors: "Liz Hare, PhD"
+institute: ""
+output: 
+  xaringan::moon_reader:
+    seal: false # false removes YAML title slide
+    css: ['css/xaringan-themer.css', 'css/custom.css']
+    nature: 
+      highlightStyle: github
+      highlightLines: true
+      ratio: 16:9
+---
+
+```{r metadata, echo=FALSE}
+# creating HTML metadata to accompany the slides
+# metathis package documentation: https://pkg.garrickadenbuie.com/metathis/
+
+library(metathis)
+meta() %>%  
+  meta_general(
+    description = "Writing Meaningful Alt Texts for Data Visualizations in R",
+    generator = "xaringan and remark.js"
+  ) %>% 
+  # GitHub repo housing the slides for the talk
+#  meta_name("github-repo" = "LizHareDogs/RLadiesNYAltText") %>%
+  # metadata for the social card that appears when you share the link on social media
+  meta_social(
+    title = "R Ladies New York Alt Text Workshop | Liz Hare, PhD",
+    url = "https://lizharedogs.github.io/RLadiesNYAltText/index.html",
+    image = "coverImageSlide.png",
+    image_alt = "",
+    og_type = "website",
+    og_author = "Liz Hare",
+    twitter_card_type = "summary_large_image",
+    twitter_creator = "@DogGeneticsLLC"
+  )
+```
+
+```{r xaringanthemer, echo=FALSE, warning=FALSE}
+library(xaringanthemer)
+
+# creating a custom CSS stylesheet using xaringanthemer
+# xaringanthemer package documentation: https://pkg.garrickadenbuie.com/xaringanthemer/reference/style_duo_accent_inverse.html
+
+style_duo_accent_inverse(
+  primary_color = "#C6B78A",   # gold color from the logo (headers, inverse slides)
+  secondary_color = "#C6B78A", # gold color (links and bold words)
+  white_color = "#F5F5F5", # off-white color (text)
+  black_color = "#14213D", # dark navy blue color (slide background)
+  base_font_size = "25px",
+  header_h1_font_size = "2.75rem",
+  header_h2_font_size = "2.25rem",
+  header_h3_font_size = "1.75rem",
+  link_decoration = "underline",
+  table_row_even_background_color = "#313C54", # lighter navy color
+  inverse_link_color = "#14213D", # dark navy blue color
+  code_highlight_color = "#ECECCE", # beige color
+  header_background_content_padding_top = "5rem",
+  footnote_position_bottom = "40px",
+  outfile = "css/xaringan-themer.css",
+  text_font_family = "Atkinson Hyperlegible",
+  text_font_google = google_font("Atkinson Hyperlegible"),
+  header_font_google = google_font("Atkinson Hyperlegible"),
+  extra_css = list(
+    # the following css styles the horizontal bars
+    "hr" = list("color" = "#C6B78A",
+                "content" = "''",
+                "display" = "block",
+                "border" = "none",
+                "background-color" = "#C6B78A",
+                "height" = "0.08em"),
+    # the following css styles the list markers to apply the primary color
+    "li::marker" = list("content" = "&#8226;",
+                        "color" = "#C6B78A"))
+)
+```
+
+```{r xaringanExtra, echo=FALSE, warning=FALSE}
+library(xaringanExtra)
+
+# specifying xaringanExtra features
+# xaringanExtra package documentation: https://pkg.garrickadenbuie.com/xaringanExtra/#/?id=xaringanextra
+
+xaringanExtra::use_xaringan_extra(
+  c("tile_view",   # enables an overview of the slide deck using letter "O"
+    "slide_tone"   # enables audible tone for slide transitions
+    )
+  ) 
+```
+
+
+```{r setup, include=FALSE, eval = TRUE}
+# loading libraries
+library(fontawesome)    # icons for use alongside contact info
+library(ggplot2)
+library(knitr)
+
+
+# turning off scientific notation
+options(scipen = 999)
+
+# setting knitr code chunk options
+knitr::opts_chunk$set(collapse = TRUE,
+                      fig.retina = 3,
+                      cache = FALSE,
+                      warning = FALSE,
+                      message = FALSE,
+                      echo = FALSE,
+                      comment = NA,
+                      dpi = 300,
+                      fig.align = "center")
+```
+
+
+```{r data-import}
+## lemurs <- readRDS("data/lemurs.rds")
+```
+
+class: bottom, title
+background-image: url(img/ben2.jpg)
+background-position: 95% 10%
+background-size: 200px
+
+<!-- this slide has the Dog Genetics, LLC logo in the top right corner, added using the "background" image classes above. The text begins on the bottom left corner of the slide -->
+
+# `r rmarkdown::metadata$title`
+## `r rmarkdown::metadata$subtitle`
+## `r rmarkdown::metadata$author`<br>@DogGeneticsLLC `r fa("twitter", a11y="sem")`
+
+---
+class: middle, center
+
+<img style="border-radius: 50%;" 
+src="img/ben2.jpg"
+alt="DogGenetics logo: a simplified yellow Labrador Retriever head appears to be made of layers of paper"
+width="250px"
+/>
+
+
+## `r rmarkdown::metadata$author` 
+
+[`r fa("link", a11y="sem")` doggenetics.com](http://doggenetics.com/)<br>
+[`r fa("twitter", a11y="sem")` @DogGeneticsLLC](https://twitter.com/DogGeneticsLLC)<br>
+[`r fa("github", a11y="sem")` @LizHareDogs](https://github.com/LizHareDogs)<br>
+[`r fa("envelope", a11y="sem")` LizHare@DogGenetics.com](mailto:LizHare@DogGenetics.com)
+
+
+
+.pull-left[
+
+
+] <!--end of pull left -->
+
+---
+
+# Accessibility
+
+The term *accessibility* is used in many ways. 
+
+.pull-left[
+
+### 1. Accessibility practices related to disability
+
+Examples:  
+- ensuring materials are accessible with a screen reader
+- providing live captions of technical meetings
+- avoiding unnecessary cognitive complexity
+- providing frequent breaks *already implemented in BookDash!**
+]
+
+.pull-right[
+### 2. Accessibility in a broader sense
+
+Examples:  
+
+- making materials that can be accessed by users with lower bandwidth
+- making materials that will be functional on older computers or mobile devices
+- considering worldwide time zones
+]
+
+---
+
+# Reference for Ten Simple Rules to Host an Inclusive Conference
+
+Joo R, Sánchez-Tapia A, Mortara S, Bellini Saibene Y, Turner H, Hug Peter D, Morandeira NS, Bannert M, Almazrouq B, Hare E, Ación L. Ten simple rules to host an inclusive conference. PLoS computational biology. 2022 Jul 21;18(7):e1010164.
+[link to Joo et al, 2022](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9302732/)
+
+---
+
+# Accessibility Defined by Andrea
+
+.pull-left[
+### 1. Narrow, disability-related sense
+
+ accessibility as a set of community-wide, behavioral, social, technical decisions 
+ we take to ensure people with disabilities are welcome and are 
+ able to participate in a community or event
+]
+
+.pull-right[
+
+### 2. Wider sense of accessibility:
+
+accessibility as going beyond the inclusion and participation of people with disabilities, 
+as  practices that improve and enable the participation for more people 
+]
+
+---
+
+# Behavioral, Social, Technical
+
+- All equally important
+- Today's focus is on technical, but here's a brief list of behavioral and social things to consider
+   - Language matters: use the words an individual uses to describe their disability, or find out what the particular community prefers
+        - avoide euphemisms ("special," "challenged")
+- Avoid cultural stories about disabilities
+    - disabled people and accessibility are burdens
+    - disabled people are inspiring
+- Communicate accessibility practices and policies
+- Designate contacts for accessibility questions
+---
+
+# What has to be accessible?
+
+- The Turing Way Book  
+
+- The tools we use to collaborate on the book
+    - The Turing Way website
+	- Meetings (Zoom)
+	- Meeting planning (EventBrite) 
+	- Messaging (Slack)
+	- Repository platform (GitHub)
+	- Social media
+
+---
+
+# Example Workarounds for Accessibility Shortcomings
+
+- Zoom's automatic captions aren't accurate enough for technical topics. Arrange live (human) captioning, and allow the captioners to familiarize themselves with the kind of material to be presented.
+
+- Video conferencing - Deaf users prefer Google Meet to Zoom for captioning. Among other things, it shows which person is speaking.
+
+- Slack has some screen reader weirdness., like not enabling the user to follow links. Only put links in top-level messages (not replies), and put one link per message.
+
+- *Already in practice!* Etherpad provides the ability for screen reader users to collaborate on documents in real time. HackMD provides very readable documents, but editing doesn't work at all. Overleaf is inaccessible.
+
+
+---
+
+# Alt text: What It Is
+
+- Attached to images to provide a description for people who use screen reading software.
+- Required to adhere to accessibility laws
+- Crucial to make sure your data communication reaches everyone  
+
+People with disabilities haven't been visible in science, but we are here.
+
+---
+
+# Alt text: What It Does
+
+Answers "Why was this image included?"
+
+Examples: 
+- It describes the relationship between X and Y in a graph  
+- It describes COVID-19 incidences on a map
+- It compares four groups on outcome measures in faceted bar charts
+
+---
+
+
+# Alt Text: What It Isn't
+
+- **Automatically generated** by AI or text mining
+- The title
+- The caption
+- Axis labels on a graph
+- A humorous remark
+
+These will usually not answer these questions:  
+- "Why am I including this data visualization?"
+- "What are the data saying?"
+
+.footnote[
+Humor is allowed, but it shouldn't obscure the message conveyed by the image
+]
+
+---
+
+# Alt Text: How Long Is It?
+
+*It depends!*  
+- context  
+- complexity  
+
+Use your judgement even though
+- Some media have character limits for alt text
+- Too many guidelines emphasize brevity
+- One or two sentences won't be enough for many data visualizations
+
+---
+
+# Alt Text For Data Visualization: Ingredients Model
+
+.pull-left[
+Ingredients (answer these questions):
+1. What kind of visualization is it (line graph, scatter plot, bar chart...?)
+2. What variables are on the axes?
+3. What is the range of the data?
+4. What relationship between variables does the data visualization show?
+]
+
+.pull-right[
+**Opinion:** Don't waste my time with 1-3 if you aren't going to include 4. While some automatic
+alt text processes mine some of this information, I don't want to spend time building a mental model of the graph if I can't find out what the graph *says*.
+]
+
+
+---
+
+# Alt Text for Data Visualization: MIT Visualization Group 4-Levels Model
+
+1. Elements and encoded properties  
+    - *title, axes and axis labels, data points*  
+2. Statistical and relation information  
+    - *mean, standard deviation, minimum, maximum*  
+3. Perceptual and cognitive phenomena  
+   - * "y increases linearly with x," "males spend less time in all behaviors than females for all faceted behaviors," "The following states have high incidences: ... "*
+4. Contextual and domain-specific insights  
+    - *"the change in x at this time point was caused by <something not in the data visualization at all>", "the change in incidence was large"*
+
+
+---
+
+# Some Resources for Learning about Alt Text:
+
+  - The [Diagram Center](http://diagramcenter.org/making-images-accessible.html)
+  has guidelines and learning tools for writing alt-texts for STEM.  
+
+  - [WGBH](https://www.wgbh.org/foundation/ncam/guidelines/guidelines-for-describing-stem-images) 
+  also has guidelines for STEM images.
+  For my opinion about their emphasis on brevity (I disagree that that's the #1 priority!), 
+  see the next item.  
+
+  - Communicating Science Through Meaningful Alt-Text, presented by Liz Hare to 
+  the Time Scavengers Virtual Internship Program, June 2022  
+
+    - [Slides](https://lizharedogs.github.io/TimeScavengersWorkshopAltText/#1) (press PgDn to advance slides)
+	- [Video](https://drive.google.com/file/d/1Fj_qJM8bJtnAyd-UTMVeiUNw8cORSnM4/view?usp=sharing )  
+
+---
+
+# References for Ingredients and Four-Level Models
+
+
+- Revealing Room for Improvement in Accessibility in a Social Media Data Visualization Community,
+  Silvia Canelón and Liz Hare, CSV conf, May 2021  
+  
+    - [Slides](https://spcanelon.github.io/csvConf2021/slides/indexLH.html#1) (press PgDn to advance slides)
+	- [Video](https://www.youtube.com/watch?v=DxLkv2iRdf8)
+- A. Lundgard and A. Satyanarayan, "Accessible Visualization via Natural Language Descriptions: A Four-Level Model of Semantic Content," in IEEE Transactions on Visualization and Computer Graphics, vol. 28, no. 1, pp. 1073-1083, Jan. 2022, doi: 10.1109/TVCG.2021.3114770.
+[link to Lundgard and Satyanarayan (2021)](https://dspace.mit.edu/bitstream/handle/1721.1/143862/vis-text-model.pdf;jsessionid=50778819AC882DB4BAC5472B42799872?sequence=2)
+
+
+---
+
+# Andrea: Accessible Communication With People Who Are Deaf or Hard-of-Hearing
+
